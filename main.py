@@ -2,13 +2,13 @@ import pygame as pg
 import pytmx
 
 from player import Player
-
+from enemy import Enemy
 pg.init()
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 600
-FPS = 80
-TILE_SCALE = 4
+FPS = 60
+TILE_SCALE = 5
 class Platform(pg.sprite.Sprite):
     def __init__(self, image, x, y, width, height):
         super(Platform, self).__init__()
@@ -30,11 +30,13 @@ class Game:
         self.platforms = pg.sprite.Group()
         self.tmx_map = pytmx.load_pygame("maps/map.tmx")
 
-        map_pixel_width = self.tmx_map.width * self.tmx_map.tilewidth * TILE_SCALE
-        map_pixel_height = self.tmx_map.height * self.tmx_map.tileheight * TILE_SCALE
+        self.map_pixel_width = self.tmx_map.width * self.tmx_map.tilewidth * TILE_SCALE
+        self.map_pixel_height = self.tmx_map.height * self.tmx_map.tileheight * TILE_SCALE
 
-        self.player = Player(map_pixel_width, map_pixel_height)
+        self.player = Player(self.map_pixel_width, self.map_pixel_height)
         self.all_sprites.add(self.player)
+        self.enemies = Enemy(self.map_pixel_width, self.map_pixel_height)
+        self.all_sprites.add(self.enemies)
 
         for layer in self.tmx_map:
             for x,y,gid in layer:
@@ -69,23 +71,28 @@ class Game:
 
         keys = pg.key.get_pressed()
 
-        if keys[pg.K_LEFT]:
-            self.camera_x += self.camera_speed
-        if keys[pg.K_RIGHT]:
-            self.camera_x -= self.camera_speed
-        if keys[pg.K_UP]:
-            self.camera_y += self.camera_speed
-        if keys[pg.K_DOWN]:
-            self.camera_y -= self.camera_speed
+        # if keys[pg.K_LEFT]:
+        #     self.camera_x += self.camera_speed
+        # if keys[pg.K_RIGHT]:
+        #     self.camera_x -= self.camera_speed
+        # if keys[pg.K_UP]:
+        #     self.camera_y += self.camera_speed
+        # if keys[pg.K_DOWN]:
+        #     self.camera_y -= self.camera_speed
 
     def update(self):
         self.player.update(self.platforms)
+        self.enemies.update(self.platforms)
+        self.camera_x = self.player.rect.x - SCREEN_WIDTH //2
+        self.camera_y = self.player.rect.y - SCREEN_HEIGHT //2
 
+        self.camera_x = max(0, min(self.camera_x, self.map_pixel_width - SCREEN_WIDTH))
+        self.camera_y = max(0, min(self.camera_y, self.map_pixel_width - SCREEN_HEIGHT))
     def draw(self):
         self.screen.fill("light blue")
 
         for sprite in self.all_sprites:
-            self.screen.blit(sprite.image, sprite.rect.move(self.camera_x, self.camera_y))
+            self.screen.blit(sprite.image, sprite.rect.move(-self.camera_x, -self.camera_y))
 
         pg.display.flip()
 if __name__ == "__main__":
