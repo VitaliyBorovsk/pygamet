@@ -28,6 +28,9 @@ class Player(pg.sprite.Sprite):
         self.rect.center = (200, 100)  # Начальное положение персонажа
 
         # Начальная скорость и гравитация
+        self.hp = 5
+        self.damage_timer = pg.time.get_ticks()
+        self.damage_interval = 1000
         self.velocity_x = 0
         self.velocity_y = 0
         self.gravity = 1
@@ -69,3 +72,8 @@ class Player(pg.sprite.Sprite):
     def jump(self):
         self.velocity_y = -15
         self.is_jumping = True
+
+    def get_damage(self):
+        if pg.time.get_ticks() > self.damage_timer + self.damage_interval:
+            self.hp -=1
+            self.damage_timer = pg.time.get_ticks()

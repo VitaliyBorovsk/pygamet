@@ -28,30 +28,33 @@ class Enemy(pg.sprite.Sprite):
         pg.draw.line(self.image, "black", (42, 5), (28, 12), 3)
 
         self.rect = self.image.get_rect()
-        self.rect.center = (200, 100)  # Начальное положение персонажа
+        self.rect.center = (4000, 0)  # Начальное положение персонажа
+        self.left_edge = 3900
+        self.right_edge = 5035
 
         # Начальная скорость и гравитация
-        self.velocity_x = 0
+        self.velocity_x = 1
         self.velocity_y = 0
         self.gravity = 1
         self.is_jumping = False
         self.map_width = map_width * TILE_SCALE
         self.map_height = map_height * TILE_SCALE
-
+        self.direction = "right"
     def update(self, platforms):
-        keys = pg.key.get_pressed()
-        if keys[pg.K_SPACE] and not self.is_jumping:
-            self.jump()
-        if keys[pg.K_a]:
-            self.velocity_x = -9
-        elif keys[pg.K_d]:
-            self.velocity_x = 9
-        else:
-            self.velocity_x = 0
-        new_x = self.rect.x + self.velocity_x
-        if 0 <= new_x <= self.map_width - self.rect.width:
-            self.rect.x = new_x
 
+        if self.direction == "right":
+            self.velocity_x = 3
+            if self.rect.right >= self.right_edge:
+                print(self.rect.center)
+                self.direction = "left"
+
+        elif self.direction == "left":
+            self.velocity_x = -3
+            if self.rect.left <= self.left_edge:
+                self.direction = "right"
+
+
+        self.rect.x += self.velocity_x
         self.velocity_y += self.gravity
         self.rect.y += self.velocity_y
 
